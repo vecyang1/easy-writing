@@ -1,4 +1,4 @@
-import { validateAiProxyTargetUrl } from "../_lib/proxy-guard.js";
+import { validateAiProxyTargetUrl } from "../../edge-lib/proxy-guard.js";
 
 const FORWARD_HEADERS = [
   "authorization",

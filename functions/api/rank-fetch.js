@@ -1,4 +1,4 @@
-import { validateRankTargetUrl } from "../_lib/proxy-guard.js";
+import { validateRankTargetUrl } from "../../edge-lib/proxy-guard.js";
 
 const BROWSER_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
@@ -35,7 +35,7 @@ export async function onRequestGet({ request }) {
     const upRes = await fetch(check.url, {
       method: "GET",
       headers,
-      redirect: "error",
+      redirect: "follow",
       signal: controller.signal,
     });
     const buf = await upRes.arrayBuffer();
@@ -44,6 +44,20 @@ export async function onRequestGet({ request }) {
         status: 502,
         headers: { "Content-Type": "application/json; charset=utf-8" },
       });
+    }
+    if (!upRes.ok) {
+      const preview = new TextDecoder("utf-8", { fatal: false }).decode(buf.slice(0, 200));
+      return new Response(
+        JSON.stringify({ error: `upstream HTTP ${upRes.status}`, site: check.site, preview }),
+        {
+          status: 502,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
+            "Cache-Control": "private, no-store",
+          },
+        },
+      );
     }
     const contentType =
       upRes.headers.get("content-type") ||

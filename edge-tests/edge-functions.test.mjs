@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { validateRankTargetUrl, validateAiProxyTargetUrl } from '../functions/_lib/proxy-guard.js'
+import { validateRankTargetUrl, validateAiProxyTargetUrl } from '../edge-lib/proxy-guard.js'
 import { onRequestGet as onHealthGet } from '../functions/api/health.js'
 import { onRequestPost as onLogsPost } from '../functions/v1/logs.js'
 
