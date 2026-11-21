@@ -20,6 +20,7 @@ src-tauri/target
 **/vitest.config.*
 /src-tauri/src/*_tests.rs
 **/.pytest_cache/
+graphify-out/
 
 # Editor directories and files
 .vscode/*

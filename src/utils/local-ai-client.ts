@@ -9,6 +9,7 @@ import { createThinkStreamFilter, stripThinkBlocks } from '@/utils/ai-think-filt
 import { getLocalAiModelSecret, localAiModelCode, type LocalAiModel } from '@/storage/local-ai-models'
 import { appendLocalAiRecord, estimateTokens } from '@/storage/local-ai-records'
 import { isTauriRuntime } from '@/storage'
+import { trackAction } from '@/telemetry'
 
 /**
  * BYOK 直连请求层（OpenAI 兼容协议）：密钥只在本机内存/存储流转，请求直发供应商。
@@ -144,6 +145,13 @@ const recordAiCall = (entry: {
     duration: Date.now() - entry.startedAt,
     errorMsg: entry.errorMsg,
   }).catch(error => console.warn('AI 调用记账失败', error))
+  trackAction('ai_call', {
+    recordType: entry.recordType,
+    scene: entry.tag?.scene || (entry.recordType === 'image' ? 'image_common' : 'text_common'),
+    status: entry.status,
+    durationMs: Date.now() - entry.startedAt,
+    modelCode: entry.model.modelCode,
+  })
 }
 
 // 非流式生成给足时间：润色/扩写可能一次产出几百字

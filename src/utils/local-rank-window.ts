@@ -21,7 +21,7 @@ export interface RankRenderCrawlOptions {
 export const crawlRankPageViaWindow = async (url: string, options: RankRenderCrawlOptions, signal?: AbortSignal): Promise<string> => {
   throwIfAborted(signal)
   if (!isTauriRuntime()) {
-    throw new Error('榜单抓取是桌面版功能：浏览器受跨域限制无法直接访问平台站点，请在桌面客户端使用')
+    throw new Error('起点中文网榜单需要桌面版隐藏窗口绕过反爬；番茄与七猫榜单可直接在网页端抓取')
   }
   const { invoke } = await import('@tauri-apps/api/core')
   const html = await abortable(invoke<string>('rank_crawl_render_page', {

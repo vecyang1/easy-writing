@@ -28,7 +28,11 @@ const resolveCrawlFetch = async (): Promise<FetchLike> => {
     const { fetch: tauriFetch } = await import('@tauri-apps/plugin-http')
     return tauriFetch as unknown as FetchLike
   }
-  throw new Error('榜单抓取是桌面版功能：浏览器受跨域限制无法直接访问平台站点，请在桌面客户端使用')
+  return (input, init) =>
+    window.fetch(`/api/rank-fetch?url=${encodeURIComponent(input)}`, {
+      method: 'GET',
+      signal: init?.signal,
+    })
 }
 
 const fetchWithTimeout = async (url: string, init: RequestInit, signal?: AbortSignal) => {

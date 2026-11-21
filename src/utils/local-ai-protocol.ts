@@ -4,6 +4,18 @@ import { isTauriRuntime } from '@/storage'
 
 export type FetchLike = (input: string, init?: RequestInit & { connectTimeout?: number }) => Promise<Response>
 
+const canUseSameOriginAiProxy = (input: string): boolean => {
+  if (typeof window === 'undefined' || window.location.protocol !== 'https:') return false
+  try {
+    const parsed = new URL(input)
+    if (parsed.protocol !== 'https:') return false
+    const host = parsed.hostname.toLowerCase()
+    return host !== 'localhost' && host !== '127.0.0.1' && host !== '::1'
+  } catch {
+    return false
+  }
+}
+
 export const resolveAiFetch = async (): Promise<FetchLike> => {
   if (isTauriRuntime()) {
     const { fetch: tauriFetch } = await import('@tauri-apps/plugin-http')
@@ -16,7 +28,21 @@ export const resolveAiFetch = async (): Promise<FetchLike> => {
         headers: { Origin: '', ...(init?.headers as Record<string, string> | undefined) }
       })
   }
-  return window.fetch.bind(window)
+  return async (input, init) => {
+    try {
+      return await window.fetch(input, init)
+    } catch (error) {
+      if (error instanceof TypeError && !init?.signal?.aborted && canUseSameOriginAiProxy(input)) {
+        const relayHeaders = new Headers(init?.headers)
+        relayHeaders.set('X-EW-Target-URL', input)
+        return window.fetch('/api/ai-proxy', {
+          ...init,
+          headers: relayHeaders,
+        })
+      }
+      throw error
+    }
+  }
 }
 
 /** 供应商代码来自模型管理的预设；自定义/未知时按地址猜官方渠道，老配置也能命中翻译表 */

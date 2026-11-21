@@ -5,7 +5,16 @@ import { abortable, throwIfAborted } from '@/utils/abortable'
 /** 复用窗口资源关闭协议取消请求；兼容策略由宿主限定在七猫榜单接口内。 */
 export async function fetchQimaoRankPage(url: string, signal?: AbortSignal): Promise<unknown> {
   throwIfAborted(signal)
-  if (!isTauriRuntime()) throw new Error('七猫榜单抓取需要在桌面客户端使用')
+  if (!isTauriRuntime()) {
+    const response = await window.fetch(`/api/rank-fetch?url=${encodeURIComponent(url)}`, {
+      method: 'GET',
+      signal,
+    })
+    if (!response.ok) {
+      throw new Error(`七猫接口返回 HTTP ${response.status}`)
+    }
+    return response.json()
+  }
   let resource: Resource | undefined
   let closing: Promise<void> | undefined
   const close = () => resource

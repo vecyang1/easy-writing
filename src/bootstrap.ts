@@ -27,6 +27,24 @@ import { useWritingEditorStore } from '@/stores/writing-editor'
 import { installOverflowProbe } from './startup/overflow-probe'
 import { installUiTypography } from './startup/ui-typography'
 import { isTauriRuntime } from '@/storage/writing-storage'
+import { initTelemetry, reportHandledError, trackAction } from '@/telemetry'
+
+initTelemetry()
+if (!isTauriRuntime()) {
+  router.afterEach(to => {
+    trackAction('page_view', { path: to.path, name: String(to.name || '') })
+  })
+  window.addEventListener('error', event => {
+    reportHandledError(
+      event.error || new Error(event.message || 'window_error'),
+      { filename: event.filename, lineno: event.lineno, colno: event.colno },
+      'window_error',
+    )
+  })
+  window.addEventListener('unhandledrejection', event => {
+    reportHandledError(event.reason, { source: 'unhandledrejection' }, 'unhandled_rejection')
+  })
+}
 
 // main.ts 在桌面迁移、设置加载完成后才动态导入此文件；
 // Pinia、主题和 Agent 页面因此共用已就绪的设置缓存，不再直接访问旧 localStorage。
