@@ -21,6 +21,7 @@ src-tauri/target
 /src-tauri/src/*_tests.rs
 **/.pytest_cache/
 graphify-out/
+.wrangler/
 
 # Editor directories and files
 .vscode/*
