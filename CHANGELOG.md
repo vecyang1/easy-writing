@@ -1,5 +1,23 @@
 # 更新日志
 
+## [2026-11-24] - 2026-11-24
+
+### Features
+- Add optional server-side Managed AI Gateway (`/api/managed-models`, `/api/managed-ai/[[path]]`, `src/storage/managed-ai-bootstrap.ts`) for zero-secret browser model hydration and dedicated text/image credential routing
+- Add `scripts/sync-upstream-stable.mjs` deterministic stable-release (`vX.Y.Z`) upstream sync helper with verification and auto-rollback
+- Expose `features.managedAiGateway` liveness indicator in `/api/health`
+
+## [2026-11-22] - 2026-11-22
+
+### Features
+- Add Cloudflare Pages serverless runtime, rank/AI CORS proxy, and Sentry+HyperDX telemetry (`8d9609a`)
+
+### Fixes
+- Move proxy-guard to edge-lib and surface upstream diagnostics in rank-fetch (`a233ace`)
+
+### Maintenance
+- Ignore .wrangler build temp files (`505a779`)
+
 ## 2.1.1 · 2026-11-03
 
 - 修复 Agent 已生成候选正文，但候选卡片和预览入口未显示的问题。

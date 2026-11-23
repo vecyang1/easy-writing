@@ -1,4 +1,4 @@
-export async function onRequestGet({ request }) {
+export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   return new Response(
     JSON.stringify({
@@ -10,6 +10,7 @@ export async function onRequestGet({ request }) {
       features: {
         rankProxy: true,
         aiCorsRelay: true,
+        managedAiGateway: Boolean(env?.MANAGED_AI_BASE_URL && env?.MANAGED_AI_API_KEY),
       },
     }),
     {

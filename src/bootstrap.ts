@@ -22,6 +22,7 @@ import App from './App.vue'
 import router from './router'
 import { useThemeStore } from '@/stores/theme'
 import { initLocalPrompts } from '@/storage/local-prompts'
+import { hydrateManagedAiModels } from '@/storage/managed-ai-bootstrap'
 import { initImportedFonts, loadImportedFont } from '@/composables/use-imported-fonts'
 import { useWritingEditorStore } from '@/stores/writing-editor'
 import { installOverflowProbe } from './startup/overflow-probe'
@@ -105,8 +106,8 @@ app.use(ElLoading)
 const themeStore = useThemeStore()
 themeStore.initTheme()
 
-// 提示词库先于挂载装载：AI 组装器同步读取，必须在任何界面可交互前就绪。
-void initLocalPrompts().finally(() => {
+// 提示词库与可选托管模型目录先于挂载装载：AI 组装器与默认模型选择器在首屏前即就绪。
+void Promise.allSettled([initLocalPrompts(), hydrateManagedAiModels()]).finally(() => {
   app.mount('#app')
   dismissBootScreen()
   const storageNotice = takeStorageStartupNotice()
